@@ -1,0 +1,21 @@
+version: 2.1
+jobs:
+  build:
+    # pre built image from docker
+    docker:
+      - image: circleci/flutter:2.0.1
+    steps:
+      # to confirm that all is ok with the project
+      - checkout
+      - run:
+        - name: "run flutter docker"
+        - command: flutter doctor
+
+      - run:
+        - name: "check flutter test"
+        - command: flutter test
+      
+workflow:
+  - name: 'build'
+  - jobs:
+      - build
