@@ -7,9 +7,14 @@ class CircularBtn extends StatelessWidget {
   final Color backgroundColor;
   final Color iconColor;
   final double paddingVal;
+  final IconData iconName;
 
   const CircularBtn(
-      {Key key, this.backgroundColor, this.iconColor, this.paddingVal})
+      {Key key,
+      this.backgroundColor,
+      this.iconColor,
+      this.paddingVal,
+      this.iconName})
       : super(key: key);
 
   @override
@@ -21,7 +26,7 @@ class CircularBtn extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.all(paddingVal),
         child: Icon(
-          Platform.isIOS ? CupertinoIcons.add : Icons.add,
+          iconName ??  Icons.add,  // if 
           color: iconColor,
           size: 20,
         ),
