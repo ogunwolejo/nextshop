@@ -7,7 +7,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final _theme = Theme.of(context);
-    return Container(
+    return SafeArea(
       child: Center(
         child: Text(
           'Profile Page',

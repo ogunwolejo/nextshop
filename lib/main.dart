@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:nextshop/routes/chat_screen.dart';
 import 'package:nextshop/routes/photo_screen.dart';
 import 'package:nextshop/routes/profile_screen.dart';
@@ -87,7 +89,9 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: '/',
       home: MainPage(),
-      routes: {},
+      routes: {
+        HomeScreen.homeScreenRoute: (context) => HomeScreen(),
+      },
     );
   }
 }
@@ -101,13 +105,18 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final bool isApple = Platform.isIOS;
-  final List<Widget> _pages = [ChatScreen(), PhotoScreen(), ProfileScreen()];
+  final List<Widget> _pages = [
+    HomeScreen(),
+    ChatScreen(),
+    PhotoScreen(),
+    ProfileScreen()
+  ];
 
   int _currentIndex = 0;
 
-  void onTap() {
+  void onTapBottomNavigator(int indexValue) {
     setState(() {
-      _currentIndex += _currentIndex;
+      _currentIndex = indexValue;
     });
   }
 
@@ -160,10 +169,11 @@ class _MainPageState extends State<MainPage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndDocked,
       bottomNavigationBar: BottomNavigation(
-        onTapBottomNavitem: () {},
+        onTapBottomNavFunction: onTapBottomNavigator,
+        bodyPageNum: _currentIndex,
       ),
       drawerDragStartBehavior: DragStartBehavior.start,
-      body: _pages[1],
+      body: _pages[_currentIndex],
       extendBody: true,
     );
   }
@@ -171,21 +181,37 @@ class _MainPageState extends State<MainPage> {
 
 // creating a bottomNavigationBar
 class BottomNavigation extends StatefulWidget {
-  final Function onTapBottomNavitem;
-  BottomNavigation({Key key, this.onTapBottomNavitem}) : super(key: key);
+  final Function onTapBottomNavFunction;
+  final int bodyPageNum;
+  BottomNavigation({Key key, this.onTapBottomNavFunction, this.bodyPageNum})
+      : super(key: key);
 
   @override
   _BottomNavigationState createState() => _BottomNavigationState();
 }
 
 class _BottomNavigationState extends State<BottomNavigation> {
-  int _currentIndex = 0;
-
-  _onTapBottomNavigatorBar(int value) {
-    setState(() {
-      value = _currentIndex++;
-    });
-  }
+  List<Map> elements = [
+    {
+      'iconName': Platform.isIOS ? CupertinoIcons.home : Icons.home,
+      'key': 0,
+    },
+    {
+      'iconName': Platform.isIOS
+          ? CupertinoIcons.chat_bubble_2
+          : Icons.bubble_chart_rounded,
+      'key': 1,
+    },
+    {
+      'iconName':
+          Platform.isIOS ? CupertinoIcons.camera : Icons.camera_alt_outlined,
+      'key': 2,
+    },
+    {
+      'iconName': Platform.isIOS ? CupertinoIcons.person : Icons.person_outline,
+      'key': 3,
+    }
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -213,49 +239,51 @@ class _BottomNavigationState extends State<BottomNavigation> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            GestureDetector(
-              onTap: _onTapBottomNavigatorBar(0),
-              child: CircularBtn(
-                backgroundColor: appColors['k2'],
-                iconColor: appColors['r1'],
-                paddingVal: 15,
-                iconName: Platform.isIOS ? CupertinoIcons.home : Icons.home,
-              ),
-            ),
-            GestureDetector(
-              onTap: () {},
-              child: CircularBtn(
-                backgroundColor: appColors['k2'],
-                iconColor: appColors['w1'],
-                paddingVal: 15,
-                iconName: Platform.isIOS
-                    ? CupertinoIcons.chat_bubble_2
-                    : Icons.bubble_chart_rounded,
-              ),
-            ),
-            GestureDetector(
-              onTap: () {},
-              child: CircularBtn(
-                backgroundColor: appColors['k2'],
-                iconColor: appColors['w1'],
-                paddingVal: 15,
-                iconName: Platform.isIOS
-                    ? CupertinoIcons.camera
-                    : Icons.camera_alt_outlined,
-              ),
-            ),
-            GestureDetector(
-              onTap: () {},
-              child: CircularBtn(
-                backgroundColor: appColors['k2'],
-                iconColor: appColors['w1'],
-                paddingVal: 15,
-                iconName: Platform.isIOS
-                    ? CupertinoIcons.profile_circled
-                    : Icons.account_circle_outlined,
-              ),
-            ),
+            ...elements.map(
+              (e) {
+                return GestureDetector(
+                  onTap: () {
+                    this.widget.onTapBottomNavFunction(e['key']);
+                  },
+                  key: UniqueKey(),
+                  child: CircularBtn(
+                    backgroundColor: appColors['k2'],
+                    iconColor: this.widget.bodyPageNum == e['key']
+                        ? appColors['r1']
+                        : appColors['w1'],
+                    /** if the currentIndex is the same as the value of the key(which represents the the element index) then set the icon color to red for active else we want white for unactive */
+                    paddingVal: 15,
+                    iconName: e['iconName'],
+                  ),
+                );
+              },
+            )..toList(),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/* The hoome screen of the app */
+class HomeScreen extends StatefulWidget {
+  static String homeScreenRoute = 'homeScreenRoute';
+  HomeScreen({Key key}) : super(key: key);
+
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  Widget build(BuildContext context) {
+    final _theme = Theme.of(context);
+    return SafeArea(
+      child: Center(
+        child: Text(
+          'Home Screen',
+          style: _theme.textTheme.headline4
+              .copyWith(color: appColors['w1'], fontWeight: FontWeight.w700),
         ),
       ),
     );
